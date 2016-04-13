@@ -248,13 +248,16 @@ static apr_status_t modsecurity_request_body_end_raw(modsec_rec *msr, char **err
 int parse_arguments(modsec_rec *msr, const char *s, apr_size_t inputlength, const char *origin, apr_table_t *arguments, int *invalid_count) {
     msc_arg *arg;
     apr_size_t i;
-    int num_args, flags, reti, offset, val_len, changed;
+    int num_args, flags, reti, val_len, changed;
+    unsigned int offset;
     char *value = NULL, *buff = NULL, *delim = "|";
     regex_t regex;
 
     if (s == NULL) return -1;
     if (inputlength == 0) return 1;
 
+    /* Check that adding one will not overflow */
+    if (inputlength + 1 <= 0) return -1;
 
     i = 0;
     offset = 0;
